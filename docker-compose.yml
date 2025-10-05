@@ -10,7 +10,7 @@ services:
       - ./models:/models:ro
       - ./api:/app:ro
     environment:
-      - MODEL_PATH=/models/docling-q8_0.gguf
+      - MODEL_PATH=/models/docling-q4_0.gguf
       - PYTHONUNBUFFERED=1
     deploy:
       resources:
