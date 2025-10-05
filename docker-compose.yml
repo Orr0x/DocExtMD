@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  markdown-extractor:
+    build: .
+    container_name: markdown-extractor
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./models:/models:ro
+      - ./api:/app:ro
+    environment:
+      - MODEL_PATH=/models/docling-q8_0.gguf
+      - PYTHONUNBUFFERED=1
+    deploy:
+      resources:
+        limits:
+          memory: 3G
+          cpus: '1.5'
+        reservations:
+          memory: 2G
+          cpus: '1.0'
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  models:

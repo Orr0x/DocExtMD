@@ -1,0 +1,36 @@
+# Model files
+models/
+*.gguf
+**/models/
+**/*.gguf
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+.venv/
+venv/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Output directories
+Output/
+output/
+
+# Test files
+Test Files/
+test-files/
+Test Files/*
+test-files/*
