@@ -22,8 +22,8 @@ A Docker-based API service that converts documents to Markdown using Docling. Su
 
 ```bash
 # If using git
-git clone <repository-url>
-cd markdown-extractor
+git clone https://github.com/Orr0x/DocExtMD.git
+cd DocExtMD
 
 # Or download the project files
 ```
@@ -65,7 +65,7 @@ Returns basic service information.
   "service": "Markdown Extractor API",
   "status": "running",
   "version": "1.0.0",
-  "model": "docling-q8_0 (258M parameters)"
+  "model": "docling-q4_0 (198M parameters)"
 }
 ```
 
@@ -76,7 +76,7 @@ Health check endpoint for monitoring.
 ```json
 {
   "status": "healthy",
-  "model": "docling-q8_0",
+  "model": "docling-q4_0",
   "ready": true
 }
 ```
@@ -239,7 +239,24 @@ docker-compose down -v && docker-compose up -d --build
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `MODEL_PATH` | `/models/docling-q8_0.gguf` | Path to Docling model file |
+| `MODEL_PATH` | `/models/docling-q4_0.gguf` | Path to Docling model file |
+
+### Model Options
+
+**Current Model (Q4_0):**
+- **File**: `docling-q4_0.gguf`
+- **Size**: 198MB
+- **Parameters**: ~258M
+- **Performance**: Good balance of speed and quality
+- **Memory Usage**: ~2-3GB RAM
+
+**Alternative Model (Q8_0) - For Future Reference:**
+- **File**: `docling-q8_0.gguf`
+- **Size**: 396MB
+- **Parameters**: ~258M (higher precision)
+- **Performance**: Higher quality, slower processing
+- **Memory Usage**: ~4-5GB RAM
+- **Usage**: Change `MODEL_PATH` to `/models/docling-q8_0.gguf` in docker-compose.yml
 
 ### Docker Compose Settings
 
@@ -354,7 +371,7 @@ For high-traffic scenarios:
 │  │                                         │   │
 │  │  FastAPI Service (Port 5000)           │   │
 │  │  ├─ Docling Converter                  │   │
-│  │  ├─ Model: docling-q8_0.gguf (450MB)   │   │
+│  │  ├─ Model: docling-q4_0.gguf (198MB)   │   │
 │  │  └─ Endpoints:                         │   │
 │  │     - GET  /                           │   │
 │  │     - GET  /health                     │   │
@@ -393,7 +410,7 @@ Test scripts are located in the `../scripts/` folder:
 
 ### **📊 Project Structure**
 ```
-📦 Markdown Extractor/
+📦 DocExtMD/
 ├── 📁 docs/                    # Documentation (this folder)
 │   ├── README.md              # Main documentation
 │   ├── lm_studio_usage_guide.md

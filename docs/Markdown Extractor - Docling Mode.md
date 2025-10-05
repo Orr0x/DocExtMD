@@ -39,10 +39,10 @@ Create directory structure for the Markdown Extractor service:
 
 ```bash
 # Create main project directory
-mkdir -p ~/markdown-extractor
+mkdir -p ~/DocExtMD
 
 # Navigate to project directory
-cd ~/markdown-extractor
+cd ~/DocExtMD
 
 # Create subdirectories
 mkdir -p models api
@@ -52,20 +52,28 @@ mkdir -p models api
 
 ## Step 3: Download Docling Model
 
-Download the Docling GGUF model (450MB, Q8_0 quantization):
+Download the Docling GGUF model (198MB, Q4_0 quantization):
+
+> **Note**: This guide uses the Q4_0 model for optimal performance. For higher quality (but slower processing), you can use the Q8_0 model (396MB) by changing the download URL and updating the MODEL_PATH in docker-compose.yml.
 
 ```bash
 # Navigate to models directory
-cd ~/markdown-extractor/models
+cd ~/DocExtMD/models
 
 # Download the model from HuggingFace
-wget https://huggingface.co/gguf-org/docling-gguf/resolve/main/docling-q8_0.gguf
-
+wget https://huggingface.co/gguf-org/docling-gguf/resolve/main/docling-q4_0.gguf
 # Verify download
-ls -lh docling-q8_0.gguf
+ls -lh docling-q4_0.gguf
 
 # Return to project root
-cd ~/markdown-extractor
+cd ~/DocExtMD
+```
+
+**Alternative: Download Q8_0 Model (Higher Quality)**
+```bash
+# For higher quality processing (slower, more memory)
+wget https://huggingface.co/gguf-org/docling-gguf/resolve/main/docling-q8_0.gguf
+# Then update MODEL_PATH in docker-compose.yml to /models/docling-q8_0.gguf
 ```
 
 ---
@@ -76,7 +84,7 @@ Create a Dockerfile to build the Docling API service container:
 
 ```bash
 # Create Dockerfile in project root
-cat > ~/markdown-extractor/Dockerfile << 'EOF'
+cat > ~/DocExtMD/Dockerfile << 'EOF'
 FROM python:3.11-slim
 
 WORKDIR /app
@@ -113,7 +121,7 @@ Create the main API application file:
 
 ```bash
 # Create main.py in api directory
-cat > ~/markdown-extractor/api/main.py << 'EOF'
+cat > ~/DocExtMD/api/main.py << 'EOF'
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -143,7 +151,7 @@ app.add_middleware(
 
 # Initialize Docling converter
 # Note: The model path can be configured via environment variable
-model_path = os.getenv("MODEL_PATH", "/models/docling-q8_0.gguf")
+model_path = os.getenv("MODEL_PATH", "/models/docling-q4_0.gguf")
 logger.info(f"Initializing Docling with model: {model_path}")
 
 try:
@@ -160,7 +168,7 @@ async def root():
         "service": "Markdown Extractor API",
         "status": "running",
         "version": "1.0.0",
-        "model": "docling-q8_0 (258M parameters)"
+        "model": "docling-q4_0 (198M parameters)"
     }
 
 @app.get("/health")
@@ -171,7 +179,7 @@ async def health_check():
     
     return {
         "status": "healthy",
-        "model": "docling-q8_0",
+        "model": "docling-q4_0",
         "ready": True
     }
 
@@ -279,7 +287,7 @@ Create docker-compose.yml to orchestrate the service:
 
 ```bash
 # Create docker-compose.yml in project root
-cat > ~/markdown-extractor/docker-compose.yml << 'EOF'
+cat > ~/DocExtMD/docker-compose.yml << 'EOF'
 version: '3.8'
 
 services:
@@ -292,7 +300,7 @@ services:
       - ./models:/models:ro
       - ./api:/app:ro
     environment:
-      - MODEL_PATH=/models/docling-q8_0.gguf
+      - MODEL_PATH=/models/docling-q4_0.gguf
       - PYTHONUNBUFFERED=1
     deploy:
       resources:
@@ -340,7 +348,7 @@ Build the Docker image and start the service:
 
 ```bash
 # Navigate to project directory
-cd ~/markdown-extractor
+cd ~/DocExtMD
 
 # Build the Docker image (this will take a few minutes)
 docker-compose build
@@ -379,7 +387,7 @@ curl http://localhost:5000/supported-formats
 
 Expected responses:
 - Root: JSON with service info
-- Health: `{"status":"healthy","model":"docling-q8_0","ready":true}`
+- Health: `{"status":"healthy","model":"docling-q4_0","ready":true}`
 - Formats: List of supported file formats
 
 ---
@@ -682,7 +690,7 @@ For production deployment, implement:
 │  │                                         │   │
 │  │  FastAPI Service (Port 5000)           │   │
 │  │  ├─ Docling Converter                  │   │
-│  │  ├─ Model: docling-q8_0.gguf (450MB)   │   │
+│  │  ├─ Model: docling-q4_0.gguf (198MB)   │   │
 │  │  └─ Endpoints:                         │   │
 │  │     - GET  /                           │   │
 │  │     - GET  /health                     │   │
@@ -739,7 +747,7 @@ Returns basic service information.
   "service": "Markdown Extractor API",
   "status": "running",
   "version": "1.0.0",
-  "model": "docling-q8_0 (258M parameters)"
+  "model": "docling-q4_0 (198M parameters)"
 }
 ```
 
@@ -750,7 +758,7 @@ Health check endpoint for monitoring.
 ```json
 {
   "status": "healthy",
-  "model": "docling-q8_0",
+  "model": "docling-q4_0",
   "ready": true
 }
 ```
