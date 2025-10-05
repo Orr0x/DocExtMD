@@ -18,6 +18,27 @@ A Docker-based API service that converts documents to Markdown using Docling. Su
 - Docker and Docker Compose installed
 - At least 4GB RAM available (8GB recommended for production)
 
+### 🚀 Live API
+
+**The Docling API is now live and accessible at:**
+```
+http://31.97.115.105:5000
+```
+
+**Test the API:**
+```bash
+# Health check
+curl http://31.97.115.105:5000/health
+
+# API information
+curl http://31.97.115.105:5000/
+
+# Convert a document
+curl -X POST http://31.97.115.105:5000/convert \
+  -F "file=@/path/to/document.pdf" \
+  -H "Accept: application/json"
+```
+
 ### 1. Clone or Download
 
 ```bash
@@ -397,6 +418,9 @@ This `docs/` folder contains all project documentation:
 
 ### **📖 Guides & Documentation**
 - **`README.md`** - This main documentation file
+- **`Markdown Extractor - Docling Mode.md`** - Complete deployment guide
+- **`deploy_to_hostinger_vps.md`** - Hostinger VPS deployment guide
+- **`PROJECT_CONTEXT.md`** - Current project status and deployment info
 - **`lm_studio_usage_guide.md`** - Complete LM Studio integration guide
 - **`lm_studio_troubleshooting.md`** - Common issues and solutions
 - **`docling_official_resources.md`** - Official Docling project information
@@ -404,9 +428,14 @@ This `docs/` folder contains all project documentation:
 
 ### **🧪 Testing & Scripts**
 Test scripts are located in the `../scripts/` folder:
+- `test_pdf_extraction.py` - Python PDF extraction test script
+- `test_pdf_extraction.ps1` - PowerShell PDF extraction test script
+- `run_test.bat` - Easy batch file to run tests
 - `test_api.py` - Python API testing script
 - `extract_markdown.py` - Batch markdown extraction script
-- `test_readme.md` - Testing documentation
+- `deploy.sh` - Automated deployment script
+- `vps_manage.sh` - VPS management script
+- `vps_setup.sh` - VPS setup script
 
 ### **📊 Project Structure**
 ```
@@ -438,6 +467,25 @@ Test scripts are located in the `../scripts/` folder:
 
 This project is provided as-is for educational and development purposes.
 
+## 🎉 Deployment Status
+
+**✅ Successfully Deployed to Hostinger VPS**
+- **API URL**: http://31.97.115.105:5000
+- **Status**: Live and operational
+- **Model**: docling-q8_0.gguf (396MB, high quality)
+- **Test Results**: PDF extraction working correctly
+- **Firewall**: Port 5000 properly configured
+
+**Test the live API:**
+```bash
+# Quick health check
+curl http://31.97.115.105:5000/health
+
+# Run the test script
+cd scripts
+python test_pdf_extraction.py
+```
+
 ## Support
 
 For issues and questions:
@@ -446,3 +494,4 @@ For issues and questions:
 3. Verify system requirements and file formats
 4. Test with sample files before production use
 5. Check the `../scripts/` folder for testing utilities
+6. For VPS management: SSH into your VPS and use `docker-compose` commands
