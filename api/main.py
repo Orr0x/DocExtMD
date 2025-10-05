@@ -37,6 +37,34 @@ def timeout_handler(signum, frame):
     """Handle processing timeout"""
     raise TimeoutError("Image processing timeout - CPU overload")
 
+def convert_png_to_jpeg(image_data, quality=90):
+    """Convert PNG to JPEG for better OCR performance"""
+    try:
+        img = Image.open(io.BytesIO(image_data))
+        
+        # Convert to RGB (removes transparency)
+        if img.mode in ('RGBA', 'LA', 'P'):
+            # Create white background for transparent images
+            background = Image.new('RGB', img.size, (255, 255, 255))
+            if img.mode == 'P':
+                img = img.convert('RGBA')
+            background.paste(img, mask=img.split()[-1] if img.mode == 'RGBA' else None)
+            img = background
+        elif img.mode != 'RGB':
+            img = img.convert('RGB')
+        
+        # Convert to JPEG
+        output = io.BytesIO()
+        img.save(output, format='JPEG', quality=quality, optimize=True)
+        jpeg_data = output.getvalue()
+        
+        logger.info(f"Converted PNG to JPEG: {len(image_data)} -> {len(jpeg_data)} bytes")
+        return jpeg_data
+        
+    except Exception as e:
+        logger.warning(f"PNG to JPEG conversion failed: {e}")
+        return image_data  # Return original if conversion fails
+
 def compress_image(image_data, max_size=(800, 600), quality=85):
     """Compress image to reduce CPU processing load"""
     try:
@@ -132,9 +160,19 @@ async def convert_to_markdown(file: UploadFile = File(...)):
         # Read file content
         content = await file.read()
         original_size = len(content)
+        png_converted = False
+
+        # Convert PNG to JPEG for better OCR performance
+        if file_ext == '.png':
+            logger.info("Converting PNG to JPEG for better OCR performance...")
+            content = convert_png_to_jpeg(content)
+            # Update file extension for processing
+            file_ext = '.jpg'
+            png_converted = True
+            logger.info("PNG converted to JPEG format")
 
         # Compress images to reduce CPU processing load
-        if file_ext in {'.png', '.jpg', '.jpeg', '.tiff'}:
+        if file_ext in {'.jpg', '.jpeg', '.tiff'}:
             logger.info("Compressing image to reduce CPU processing load...")
             content = compress_image(content)
 
@@ -211,6 +249,7 @@ async def convert_to_markdown(file: UploadFile = File(...)):
                 **metadata,
                 "processing_info": {
                     "compressed": original_size != len(content),
+                    "png_converted": png_converted,
                     "original_size": original_size,
                     "processed_size": len(content),
                     "timeout_seconds": timeout_seconds,
