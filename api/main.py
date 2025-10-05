@@ -64,24 +64,10 @@ def compress_image(image_data, max_size=(800, 600), quality=85):
         return image_data  # Return original if compression fails
 
 try:
-    # Initialize Docling converter with CPU-optimized settings
-    converter = DocumentConverter(
-        # Use faster, less CPU-intensive OCR engine
-        ocr_engine="tesseract",  # Faster than easyocr/rapidocr
-        
-        # Reduce image processing quality to save CPU
-        image_resolution=150,    # Lower DPI = less CPU processing
-        
-        # Limit concurrent processing
-        max_workers=1,           # Process one document at a time
-        
-        # CPU optimization settings
-        cpu_threads=2,           # Limit CPU threads (adjust based on server)
-        
-        # Skip complex image analysis for faster processing
-        skip_complex_analysis=True,
-    )
-    logger.info("Docling converter initialized successfully with CPU optimizations")
+    # Initialize Docling converter with basic settings
+    # Note: Advanced optimization parameters may not be supported in all versions
+    converter = DocumentConverter()
+    logger.info("Docling converter initialized successfully")
 except Exception as e:
     logger.error(f"Failed to initialize Docling: {e}")
     converter = None
@@ -159,8 +145,8 @@ async def convert_to_markdown(file: UploadFile = File(...)):
 
         logger.info(f"Saved to temporary file: {tmp_path}")
 
-        # Set timeout for processing (30 seconds for images, 60 for documents)
-        timeout_seconds = 30 if file_ext in {'.png', '.jpg', '.jpeg', '.tiff'} else 60
+        # Set timeout for processing (90 seconds for images, 120 for documents)
+        timeout_seconds = 90 if file_ext in {'.png', '.jpg', '.jpeg', '.tiff'} else 120
         signal.signal(signal.SIGALRM, timeout_handler)
         signal.alarm(timeout_seconds)
 
